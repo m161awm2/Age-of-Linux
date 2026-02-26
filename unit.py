@@ -33,7 +33,7 @@ class Unit:
             self.cost, self.range, self.attack_speed = 14, 2, 1.2
         elif kind == "C": # Chariot (전직 기병 1)
             base_hp, base_dmg = 60, 1 # 높은 체력, 낮은 단발 데미지
-            self.cost, self.range, self.attack_speed = 20, 1, 0.2 # 0.2초당 공격
+            self.cost, self.range, self.attack_speed = 20, 1, 0.1 # 012초당 공격
         elif kind == "W": # Winged Hussar (전직 기병 2)
             base_hp, base_dmg = 27, 15 # 높은 데미지
             self.cost, self.range, self.attack_speed = 20, 3, 1.2 # 긴 사거리
@@ -43,8 +43,8 @@ class Unit:
             self.cost, self.range, self.attack_speed = 1, 1, 1.0
 
         # 업그레이드 복리 계산
-        self.max_hp = round(base_hp * math.pow(1.3, hp_lv))
-        self.damage = round(base_dmg * math.pow(1.3, dmg_lv))
+        self.max_hp = round(base_hp * math.pow(1.2, hp_lv))
+        self.damage = round(base_dmg * math.pow(1.2, dmg_lv))
         self.hp = self.max_hp
 
     def update(self, dt):
@@ -56,3 +56,4 @@ class Unit:
     def alive(self):
 
         return self.hp > 0
+
