@@ -24,8 +24,8 @@ def run(stdscr):
     dmg_level = 0
 
     # 업그레이드 비용 설정
-    hp_upgrade_cost = 15
-    dmg_upgrade_cost = 17
+    hp_upgrade_cost = 14
+    dmg_upgrade_cost = 16
     # 게임 데이터
     player_base_hp = 100
     ai_base_hp = 500
@@ -54,15 +54,15 @@ def run(stdscr):
         if key == ord("9") and eco.gold >= hp_upgrade_cost:
             eco.gold -= hp_upgrade_cost
             hp_level += 1
-            # 다음 업그레이드 비용은 더 비싸지게 (2.5배)
-            hp_upgrade_cost = int(hp_upgrade_cost * 2.5)
+            # 다음 업그레이드 비용은 더 비싸지게 (2.2배)
+            hp_upgrade_cost = int(hp_upgrade_cost * 2.2)
 
         # 0번: 공격력 업그레이드 로직
         if key == ord("0") and eco.gold >= dmg_upgrade_cost:
             eco.gold -= dmg_upgrade_cost
             dmg_level += 1
-            # 다음 업그레이드 비용은 더 비싸지게 (2.5배)
-            dmg_upgrade_cost = int(dmg_upgrade_cost * 2.5)
+            # 다음 업그레이드 비용은 더 비싸지게 (2.2배)
+            dmg_upgrade_cost = int(dmg_upgrade_cost * 2.2)
 
         # 1. 시스템 업데이트
         eco.update(dt)
@@ -167,7 +167,7 @@ def run(stdscr):
             if dist_to_base <= u.range + 1.5:
                 player_base_hp = attack_base(u, PLAYER_BASE_X, player_base_hp)
 
-        # 7. 사망 처리 및 보상 (0.75배 적용)
+        # 7. 사망 처리 및 보상
         for u in player_units:
             if not u.alive(): 
                 # 내 유닛이 죽으면 AI는 비용의 100%를 가져감
@@ -177,7 +177,7 @@ def run(stdscr):
             if not e.alive(): 
                 # AI 유닛이 죽으면 비용의 50%를 가져감
                 # u.cost가 아니라 e.cost(죽은 AI 유닛의 비용)로 써야 함을 주의하세요!
-                eco.gold += int(e.cost * 0.5)
+                eco.gold += int(e.cost * 0.6)
 
         player_units = [u for u in player_units if u.alive()]
         ai_units = [e for e in ai_units if e.alive()]
@@ -201,3 +201,4 @@ def run(stdscr):
 
 
         time.sleep(0.03)
+
