@@ -23,16 +23,16 @@ class Unit:
             self.max_hp = 9 + (hp_lv * 2)
             self.damage = 3 + (dmg_lv * 2)
             self.cost = 6
-            self.range = 5
-            self.attack_speed = 1.2
+            self.range = 4
+            self.attack_speed = 1.4
             
         elif kind == "@": # 기병
-            # 🌟 기병은 비싸니까 레벨당 체력 +4, 공격력 +5 적용 (보너스!)
+            # 🌟 기병은 비싸니까 레벨당 체력 +4, 공격력 +4 적용 (보너스!)
             self.max_hp = 27 + (hp_lv * 4)
             self.damage = 9 + (dmg_lv * 5)
             self.cost = 14
             self.range = 2
-            self.attack_speed = 1.5
+            self.attack_speed = 1.2
 
         # 현재 체력을 계산된 최대 체력으로 설정
         self.hp = self.max_hp
@@ -46,4 +46,3 @@ class Unit:
     def alive(self):
 
         return self.hp > 0
-
