@@ -24,11 +24,11 @@ def run(stdscr):
     dmg_level = 0
 
     # 업그레이드 비용 설정
-    hp_upgrade_cost = 10
-    dmg_upgrade_cost = 15
+    hp_upgrade_cost = 15
+    dmg_upgrade_cost = 17
     # 게임 데이터
     player_base_hp = 100
-    ai_base_hp = 100
+    ai_base_hp = 500
     player_units = []
     ai_units = []
     
@@ -198,5 +198,6 @@ def run(stdscr):
             int(eco.gold), player_base_hp, ai_base_hp,
             hp_level, dmg_level, hp_upgrade_cost, dmg_upgrade_cost
         )
+
 
         time.sleep(0.03)
