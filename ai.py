@@ -3,10 +3,10 @@ import random
 from unit import Unit
 
 def ai_spawn(ai_units, ai_gold, spawn_x):
-    # 유닛 비용 설정 (사용자가 낮춘 비용 반영 + 기병 추가)
+    
     SOLDIER_COST = 3
     ARCHER_COST = 5
-    KNIGHT_COST = 10  # 기병은 강력하니까 10원 정도로 설정해볼까요?
+    KNIGHT_COST = 10
 
     # 가장 싼 병사조차 못 뽑으면 바로 리턴
     if ai_gold < SOLDIER_COST:
@@ -37,9 +37,10 @@ def ai_spawn(ai_units, ai_gold, spawn_x):
 
     # 3. 병사만 뽑을 수 있을 때
     elif ai_gold >= SOLDIER_COST:
-        # 돈을 아껴서 기병/궁수를 뽑을 수 있게 소환 확률을 낮춤 (전략적 대기)
+        
         if random.random() < 0.2: 
             ai_units.append(Unit("#", "ai", spawn_x))
             ai_gold -= SOLDIER_COST
         
+
     return ai_gold
