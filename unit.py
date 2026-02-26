@@ -43,8 +43,8 @@ class Unit:
             self.cost, self.range, self.attack_speed = 1, 1, 1.0
 
         # 업그레이드 복리 계산
-        self.max_hp = round(base_hp * math.pow(1.1, hp_lv))
-        self.damage = round(base_dmg * math.pow(1.1, dmg_lv))
+        self.max_hp = round(base_hp * math.pow(1.3, hp_lv))
+        self.damage = round(base_dmg * math.pow(1.3, dmg_lv))
         self.hp = self.max_hp
 
     def update(self, dt):
@@ -54,4 +54,5 @@ class Unit:
             self.state_timer -= dt
 
     def alive(self):
+
         return self.hp > 0
