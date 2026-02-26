@@ -7,12 +7,22 @@ from ai import ai_spawn
 from combat import can_attack, try_attack, attack_base
 from render import draw
 
+
 def run(stdscr):
     # ======================
     # 초기 설정
     # ======================
     curses.curs_set(0)
     stdscr.nodelay(True)
+    
+    # --- 색상 초기화 코드 추가 ---
+    curses.start_color()
+    # curses.init_pair(번호, 글자색, 배경색)
+    curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK) # 아군: 노랑
+    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)    # 적군: 빨강
+    curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)   # UI: 하늘색
+    # --------------------------
+
     height, width = stdscr.getmaxyx()
 
     # 화면 기준 좌표    
@@ -201,4 +211,5 @@ def run(stdscr):
 
 
         time.sleep(0.03)
+
 
