@@ -27,9 +27,9 @@ class Unit:
             self.attack_speed = 1.2
             
         elif kind == "@": # 기병
-            # 🌟 기병은 비싸니까 레벨당 체력 +4, 공격력 +4 적용 (보너스!)
-            self.max_hp = 27 + (hp_lv * 3)
-            self.damage = 9 + (dmg_lv * 4)
+            # 🌟 기병은 비싸니까 레벨당 체력 +4, 공격력 +5 적용 (보너스!)
+            self.max_hp = 27 + (hp_lv * 4)
+            self.damage = 9 + (dmg_lv * 5)
             self.cost = 14
             self.range = 2
             self.attack_speed = 1.5
@@ -46,3 +46,4 @@ class Unit:
     def alive(self):
 
         return self.hp > 0
+
