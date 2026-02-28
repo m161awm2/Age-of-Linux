@@ -26,11 +26,11 @@ def try_attack(attacker, target):
         is_melee_attack = False
         if attacker.kind == "D":
             if dist <= 1.5:  # 1. 근접 상황 (칼)
-                actual_damage = 12
+                actual_damage = int(attacker.damage * 1.5)
                 attacker.cooldown = 1.0  # 공속 빨라짐
                 is_melee_attack = True   # 모션 없음을 위해 체크
             else:           # 2. 원거리 상황 (총)
-                actual_damage = 8
+                actual_damage = attacker.damage
                 attacker.cooldown = 2.0  # 공속 느려짐
                 is_melee_attack = False
         # --- [추가] 상성 로직: 창병(S)이 기병(@, C, W)을 공격할 때 1.5배 데미지 ---
