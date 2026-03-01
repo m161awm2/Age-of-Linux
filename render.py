@@ -158,6 +158,6 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
                 stdscr.addstr(start_y + 1, start_x + 13, "--- SPECIAL UNLOCK ---", curses.color_pair(3) | curses.A_BOLD)
                 stdscr.addstr(start_y + 3, start_x + 3, "[6] Fenrir Wolf Warrior: Anti-Archer (4G)", curses.color_pair(3))
                 stdscr.addstr(start_y + 4, start_x + 5, "[7] Ronin : Iaijutsu(x2 Dmg) (8G)", curses.color_pair(3))
-                stdscr.addstr(start_y + 7, start_x + 16, "COST: 12 GOLD", curses.color_pair(2))
+                stdscr.addstr(start_y + 7, start_x + 16, "COST: 30 GOLD", curses.color_pair(2))
                 stdscr.addstr(start_y + 8, start_x + 12, "Press [4] to Close", curses.color_pair(3))
         stdscr.refresh()
