@@ -59,7 +59,7 @@ def try_attack(attacker, target):
             actual_damage = int(actual_damage * 1.5)
             
         # combat.py 수정본
-        if attacker.symbol == 'F':
+        if attacker.kind == 'F':
     # max_hp -> mhp로 수정
             extra_dmg = target.mhp * (0.1 + attacker.dmg_lv * 0.03)
             actual_dmg += int(extra_dmg) # 정수로 변환하여 합산
@@ -91,3 +91,4 @@ def attack_base(unit, base_x, base_hp):
             unit.state_timer = 0.2
             
     return base_hp
+
