@@ -90,8 +90,8 @@ def run(stdscr):
             # [6번] 펜리르(L) 해금 또는 선택
             if key == ord('6'):
                 if "L" not in unlocked_units:
-                    if eco.gold >= 12:
-                        eco.gold -= 12
+                    if eco.gold >= 30:
+                        eco.gold -= 30
                         unlocked_units.append("L")
                         current_special = "L" # 해금 시 바로 선택
                         show_promo_mode = 0
