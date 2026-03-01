@@ -303,3 +303,4 @@ def run(stdscr):
             current_special    # 마지막으로 current_special 전달
         )
         time.sleep(0.03)
+
