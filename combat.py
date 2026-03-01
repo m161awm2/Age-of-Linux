@@ -58,10 +58,11 @@ def try_attack(attacker, target):
         if attacker.kind == "S" and target.kind in ["@", "C", "W", "D"]:
             actual_damage = int(actual_damage * 1.5)
             
-        # 불화살 사수(F)의 고정 퍼센트 데미지
-        if attacker.kind == "F":
-            bonus_ratio = 0.10 + (attacker.dmg_lv * 0.03)
-            actual_damage += int(target.max_hp * bonus_ratio)
+        # combat.py 수정본
+        if attacker.symbol == 'F':
+    # max_hp -> mhp로 수정
+            extra_dmg = target.mhp * (0.1 + attacker.dmg_lv * 0.03)
+            actual_dmg += int(extra_dmg) # 정수로 변환하여 합산
         # 5. [최종 데미지 적용]
         target.hp -= actual_damage
 
