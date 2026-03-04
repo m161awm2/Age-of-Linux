@@ -10,7 +10,7 @@ from ai import ai_spawn
 from combat import can_attack, try_attack, attack_base
 from render import draw
 
-def run(stdscr):
+def run(stdscr, difficulty="Hard"):
     # ======================
     # 초기 설정
     # ======================
@@ -45,8 +45,13 @@ def run(stdscr):
     player_units, ai_units = [], []
     last_bonus_hp = 500
     
+    # --- 기존에 있던 eco = Economy() 부분을 아래와 같이 수정/확인 ---
+    # 초기 자금은 10G로 모든 난이도 똑같이 고정!
     eco = Economy()
+    eco.gold = 10 
+    
     ai_eco = Economy()
+    ai_eco.gold = 10
     last_time = time.time()
     game_start_time = time.time()
     last_time = time.time()
@@ -209,7 +214,7 @@ def run(stdscr):
             upgrade_cost = int(upgrade_cost * 1.6)  # 강화할수록 비용 상승
         # 6. 생산 (AI)
         if ai_eco.timer >= 0.95:
-            ai_eco.gold = ai_spawn(ai_units, ai_eco.gold, AI_BASE_X - 1, game_start_time)
+            ai_eco.gold = ai_spawn(ai_units, ai_eco.gold, AI_BASE_X - 1, game_start_time, difficulty)
 
         # 7. 이동 로직
         SPEED = 6 * dt
@@ -303,4 +308,3 @@ def run(stdscr):
             current_special    # 마지막으로 current_special 전달
         )
         time.sleep(0.03)
-
