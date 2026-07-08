@@ -1,7 +1,8 @@
 # ai.py
 import random
 import time
-from unit import Unit
+
+from .unit import Unit
 
 ai_current_types = {"soldier": "#", "archer": "&", "knight": "@"}
 
@@ -40,13 +41,13 @@ def ai_spawn(ai_units, ai_gold, spawn_x, start_time, difficulty="Hard"):
     if ai_gold >= KNIGHT_COST:
         rand = random.random()
         if rand < 0.5:
-            ai_units.append(Unit(ai_current_types["knight"], "ai", spawn_x, 0, 0))
+            ai_units.append(Unit(ai_current_types["knight"], "ai", spawn_x))
             ai_gold -= KNIGHT_COST
         elif rand < 0.8:
-            ai_units.append(Unit(ai_current_types["archer"], "ai", spawn_x, 0, 0))
+            ai_units.append(Unit(ai_current_types["archer"], "ai", spawn_x))
             ai_gold -= ARCHER_COST
         else:
-            ai_units.append(Unit(ai_current_types["soldier"], "ai", spawn_x, 0, 0))
+            ai_units.append(Unit(ai_current_types["soldier"], "ai", spawn_x))
             ai_gold -= SOLDIER_COST
     # ... (생략된 ARCHER_COST 체크 부분도 동일하게 변수 사용)
     return ai_gold

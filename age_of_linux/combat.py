@@ -3,6 +3,8 @@
 def distance(a, b):
     return abs(a.x - b.x)
 
+CAVALRY_KINDS = {"@", "C", "W", "D"}
+
 def can_attack(attacker, target, allies, enemies):
     dist = abs(attacker.x - target.x)
     if attacker.kind == "D":
@@ -29,6 +31,9 @@ def try_attack(attacker, target):
         
         # 2. 기본 데미지 설정 (unit.py의 self.damage 참조)
         actual_damage = attacker.damage
+
+        if attacker.kind == "W":
+            actual_damage = round(actual_damage * attacker.charge_damage_multiplier())
         
         # 3. [드라군 전용 로직] 거리에 따라 공격 방식 변경
         is_melee_attack = False
@@ -55,17 +60,15 @@ def try_attack(attacker, target):
                 actual_damage = int(actual_damage * 0.6)
 
         # 5. [기타 상성 로직]
-        # 창병(S)이 기병(@, C, W, D)을 공격할 때 1.5배 데미지
-        if attacker.kind == "S" and target.kind in ["@", "C", "W", "D"]:
+        # 창병 계열이 기병(@, C, W, D)을 공격할 때 추가 데미지
+        if attacker.kind in ["S", "H"] and target.kind in ["@", "C", "W", "D"]:
             actual_damage = int(actual_damage * 1.5)
+            if attacker.kind == "H":
+                actual_damage += int(target.max_hp * 0.08)
             
         # 6. [불화살 사수(F) 로직] 적 최대 체력 비례 데미지
         if attacker.kind == "F":
-            # unit.py의 self.level(dmg_lv) 참조
-            dmg_lv = getattr(attacker, 'level', 0) 
-            bonus_ratio = 0.10 + (dmg_lv * 0.03)
-            # unit.py의 self.max_hp 참조
-            actual_damage += int(target.max_hp * bonus_ratio)
+            actual_damage += int(target.max_hp * 0.10)
 
         # 7. [로닌(R) 발도술] 첫 공격 2배 데미지
         if attacker.kind == "R" and getattr(attacker, 'is_first_strike', False):
@@ -74,7 +77,19 @@ def try_attack(attacker, target):
             target.state_timer = 0.2 # 피격 연출
 
         # 8. 최종 데미지 적용 및 체력 차감
-        target.hp -= actual_damage
+        target.take_damage(actual_damage)
+        if attacker.kind == "U":
+            attacker.heal(1)
+        attacker.reset_charge()
+
+        # 창병은 기병별 첫 돌격을 받아낼 때 한 번만 반격 피해를 줍니다.
+        if (
+            target.kind in ["S", "H"]
+            and attacker.kind in CAVALRY_KINDS
+            and not getattr(attacker, "took_spearman_counter", False)
+        ):
+            attacker.hp -= target.damage
+            attacker.took_spearman_counter = True
 
         # 9. [후처리] 쿨다운 및 연출 설정
         if attacker.kind != "D":
@@ -88,6 +103,7 @@ def try_attack(attacker, target):
 def attack_base(unit, base_x, base_hp):
     if unit.cooldown <= 0:
         base_hp -= unit.damage
+        unit.reset_charge()
         unit.cooldown = unit.attack_speed
         
         if unit.kind == "&":

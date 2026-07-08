@@ -1,7 +1,7 @@
 import curses
 
 def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp, 
-            army_lv, _unused_dmg_lv, upgrade_cost, _unused_dmg_cost, show_promo_mode, s_type, a_type, k_type, ai_s, ai_a, ai_k, unlocked_units=[],current_special = None):
+            show_promo_mode, s_type, a_type, k_type, ai_s, ai_a, ai_k, unlocked_units=[],current_special = None):
         """
         k_type: 기병의 현재 타입 ("@", "C", "W") 인자를 추가로 받아야 합니다.
         """
@@ -10,15 +10,14 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
 
         # 2. 상단 기본 UI
         stdscr.addstr(0, 2, f"GOLD: {gold}G  |  BASE: {p_hp} vs {e_hp}", curses.color_pair(3))
-        stdscr.addstr(1, 2, f"[9] Army Training Lv.{army_lv} ({upgrade_cost}G)", curses.color_pair(3) | curses.A_BOLD)
         ai_info_x = width - 25
         stdscr.addstr(1, ai_info_x, "  [ AI INTEL ]", curses.color_pair(2))
         
         # AI 보병 정보
 
         # --- AI 유닛 이름 매핑 ---
-        # 보병(Infantry) 이름 매핑 (스파르타 'T' 추가)
-        inf_names = {"#": "Soldier", "S": "Spearman", "P": "Paladin", "T": "Sparta"}
+        # 보병(Infantry) 이름 매핑
+        inf_names = {"#": "Soldier", "S": "Spearman", "H": "Halberd", "P": "Paladin", "U": "Crusader", "T": "Sparta", "G": "Guardian"}
         # 궁수(Archer) 이름 매핑
         arc_names = {"&": "Archer", "M": "Musketeer", "J": "Javelin", "F": "Fire Archer"}
         # 기병(Cavalry) 이름 매핑
@@ -47,13 +46,31 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
             stdscr.addstr(3, 2, "[5] Promote Soldier (20G)", curses.color_pair(3))
         elif s_type == "S":
             s_display = "Spearman (S): 4G"
-            stdscr.addstr(3, 2, "RANK UP: Spearman Active!", curses.color_pair(1))
+            if a_type != "&" and k_type != "@":
+                stdscr.addstr(3, 2, "[5] Promote Spearman (7G)", curses.color_pair(3))
+            else:
+                stdscr.addstr(3, 2, "RANK UP: Spearman Active!", curses.color_pair(1))
+        elif s_type == "H":
+            s_display = "Halberd (H): 7G"
+            stdscr.addstr(3, 2, "RANK UP: Halberd Active!", curses.color_pair(1))
         elif s_type == "T":
             s_display = "Sparta (T): 6G"
-            stdscr.addstr(3, 2, "RANK UP: Sparta Active!", curses.color_pair(1))
-        else: # "P"
+            if a_type != "&" and k_type != "@":
+                stdscr.addstr(3, 2, "[5] Promote Sparta (7G)", curses.color_pair(3))
+            else:
+                stdscr.addstr(3, 2, "RANK UP: Sparta Active!", curses.color_pair(1))
+        elif s_type == "G":
+            s_display = "Shield Guard (G): 7G"
+            stdscr.addstr(3, 2, "RANK UP: Shield Guard Active!", curses.color_pair(1))
+        elif s_type == "P":
             s_display = "Paladin (P): 6G"
-            stdscr.addstr(3, 2, "RANK UP: Paladin Active!", curses.color_pair(1))
+            if a_type != "&" and k_type != "@":
+                stdscr.addstr(3, 2, "[5] Promote Paladin (7G)", curses.color_pair(3))
+            else:
+                stdscr.addstr(3, 2, "RANK UP: Paladin Active!", curses.color_pair(1))
+        else: # "U"
+            s_display = "Crusader (U): 8G"
+            stdscr.addstr(3, 2, "RANK UP: Crusader Active!", curses.color_pair(1))
 
         # --- [동적 UI] 2. 궁수 설정 ---
         if a_type == "&":
@@ -113,6 +130,10 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
         for u in p_units + e_units:
             x_pos = max(0, min(width - 2, int(u.x)))
             char = u.kind
+            color = curses.color_pair(1) if u.team == "player" else curses.color_pair(2)
+            if getattr(u, "shield_hp", 0) > 0:
+                try: stdscr.addstr(ground_y - 2, x_pos, "O", color | curses.A_BOLD)
+                except: pass
             if u.kind in ["&", "M", "J","F","D"] and u.state_timer > 0:
                 char = "$" # 원거리 공격 연출
             
@@ -120,7 +141,6 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
             elif u.state_timer > 0 and u.state_timer <= 0.2:
                 char = "/"
 
-            color = curses.color_pair(1) if u.team == "player" else curses.color_pair(2)
             try: stdscr.addstr(ground_y - 1, x_pos, char, color | curses.A_BOLD)
             except: pass
 
@@ -160,4 +180,16 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
                 stdscr.addstr(start_y + 4, start_x + 5, "[7] Ronin : Iaijutsu(x2 Dmg) (8G)", curses.color_pair(3))
                 stdscr.addstr(start_y + 7, start_x + 16, "COST: 30 GOLD", curses.color_pair(2))
                 stdscr.addstr(start_y + 8, start_x + 12, "Press [4] to Close", curses.color_pair(3))
+            elif show_promo_mode == 5:
+                stdscr.addstr(start_y + 1, start_x + 10, "--- SOLDIER 2ND PROMOTION ---", curses.color_pair(3) | curses.A_BOLD)
+                if s_type == "S":
+                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Halberd: HP 18, DMG 8 (7G)", curses.color_pair(1))
+                    stdscr.addstr(start_y + 4, start_x + 3, "    Anti-cavalry plus max HP damage", curses.color_pair(1))
+                elif s_type == "T":
+                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Shield Guard: HP 33, DMG 5 (7G)", curses.color_pair(1))
+                    stdscr.addstr(start_y + 4, start_x + 3, "    Shield blocks one oversized hit", curses.color_pair(1))
+                elif s_type == "P":
+                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Crusader: HP 28, DMG 7 (7G)", curses.color_pair(1))
+                    stdscr.addstr(start_y + 4, start_x + 3, "    Heals 1 HP on each attack", curses.color_pair(1))
+                stdscr.addstr(start_y + 7, start_x + 16, "COST: 7 GOLD", curses.color_pair(2))
         stdscr.refresh()

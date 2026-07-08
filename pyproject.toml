@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "age-of-linux"
+version = "0.1.0"
+description = "A terminal real-time strategy defense game."
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.scripts]
+age-of-linux = "age_of_linux.cli:main"
+
+[tool.setuptools]
+packages = ["age_of_linux"]
