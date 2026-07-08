@@ -7,6 +7,12 @@ from .economy import Economy
 from .unit import Unit
 from .render import draw
 
+PLAYER_DEATH_BOUNTY_RATE = {
+    "Easy": 0.55,
+    "Medium": 0.65,
+    "Hard": 0.75,
+}
+
 def run(stdscr, difficulty="Hard"):
     # ======================
     # 초기 설정
@@ -28,10 +34,12 @@ def run(stdscr, difficulty="Hard"):
     soldier_type = "#"
     archer_type = "&"
     knight_type = "@"
+    ai_current_types.update({"soldier": "#", "archer": "&", "knight": "@"})
     show_promo_mode = 0  # 0:꺼짐, 1:보병메뉴, 2:궁수메뉴
     PROMO_COST_S = 20
     PROMO_COST_A = 25
     PROMO_COST_K = 30
+    SECOND_PROMO_COST = 35
 
     player_base_hp, ai_base_hp = 100, 500
     player_units, ai_units = [], []
@@ -157,8 +165,8 @@ def run(stdscr, difficulty="Hard"):
                 knight_type = "D" #드라군
                 show_promo_mode = 0
         elif show_promo_mode == 5: # 2차 전직
-            if key == ord("6") and eco.gold >= 7:
-                eco.gold -= 7
+            if key == ord("6") and eco.gold >= SECOND_PROMO_COST:
+                eco.gold -= SECOND_PROMO_COST
                 if soldier_type == "S":
                     soldier_type = "H"
                 elif soldier_type == "P":
@@ -173,45 +181,22 @@ def run(stdscr, difficulty="Hard"):
         if show_promo_mode == 0:
             # --- 1번: 보병 계열 생산 ---
             if key == ord("1"):
-                if soldier_type == "U":
-                    cost = 8
-                elif soldier_type in ["G", "H"]:
-                    cost = 7
-                elif soldier_type in ["P", "T"]:
-                    cost = 6
-                else:
-                    cost = 4
+                cost = Unit(soldier_type, "player", PLAYER_BASE_X + 1).cost
                 if eco.gold >= cost:
                     player_units.append(Unit(soldier_type, "player", PLAYER_BASE_X + 1))
                     eco.gold -= cost
-            
+
             # --- 2번: 궁수 계열 생산 ---
             elif key == ord("2"):
-                # 머스킷(M)은 8원, 투창병(J)과 기본 궁수(&)는 6원
-                if archer_type == "M":
-                    cost = 8 
-                elif archer_type == "J":
-                    cost = 6
-                elif archer_type == "F":
-                    cost = 7    
-                else:
-                    cost = 5
+                cost = Unit(archer_type, "player", PLAYER_BASE_X + 1).cost
                 if eco.gold >= cost:
                     player_units.append(Unit(archer_type, "player", PLAYER_BASE_X + 1))
                     eco.gold -= cost
 
             # --- 3번: 기병 계열 생산 ---
             elif key == ord("3"):
-                # 전차(C)는 20원, 윙드 후사르(W)는 17원, 기본 기사(@)는 14원
-                if knight_type == "C":
-                    cost = 20
-                elif knight_type == "W":
-                    cost = 17
-                elif knight_type == "D":
-                    cost = 18
-                else:
-                    cost = 14
-                
+                cost = Unit(knight_type, "player", PLAYER_BASE_X + 1).cost
+
                 if eco.gold >= cost:
                     player_units.append(Unit(knight_type, "player", PLAYER_BASE_X + 1))
                     eco.gold -= cost
@@ -298,10 +283,15 @@ def run(stdscr, difficulty="Hard"):
              ai_eco.gold += 20
              last_bonus_hp -= 50  # 다음 50 구간을 위해 업데이트 (예: 100->50, 50->0)
 
+        player_bounty_rate = PLAYER_DEATH_BOUNTY_RATE.get(difficulty, PLAYER_DEATH_BOUNTY_RATE["Hard"])
         for u in player_units:
-            if not u.alive(): ai_eco.gold += u.cost
+            if not u.alive() and not getattr(u, "bounty_paid", False):
+                ai_eco.gold += max(1, int(u.cost * player_bounty_rate))
+                u.bounty_paid = True
         for e in ai_units:
-            if not e.alive(): eco.gold += int(e.cost * 0.5)
+            if not e.alive() and not getattr(e, "bounty_paid", False):
+                eco.gold += max(1, int(e.cost * 0.5))
+                e.bounty_paid = True
 
         player_units = [u for u in player_units if u.alive() or u.state_timer > 0]
         ai_units = [e for e in ai_units if e.alive() or e.state_timer > 0]

@@ -62,13 +62,13 @@ def try_attack(attacker, target):
         # 5. [기타 상성 로직]
         # 창병 계열이 기병(@, C, W, D)을 공격할 때 추가 데미지
         if attacker.kind in ["S", "H"] and target.kind in ["@", "C", "W", "D"]:
-            actual_damage = int(actual_damage * 1.5)
+            actual_damage = int(actual_damage * 1.8)
             if attacker.kind == "H":
-                actual_damage += int(target.max_hp * 0.08)
+                actual_damage += int(target.max_hp * 0.12)
             
         # 6. [불화살 사수(F) 로직] 적 최대 체력 비례 데미지
         if attacker.kind == "F":
-            actual_damage += int(target.max_hp * 0.10)
+            actual_damage += int(target.max_hp * 0.12)
 
         # 7. [로닌(R) 발도술] 첫 공격 2배 데미지
         if attacker.kind == "R" and getattr(attacker, 'is_first_strike', False):
@@ -79,7 +79,10 @@ def try_attack(attacker, target):
         # 8. 최종 데미지 적용 및 체력 차감
         target.take_damage(actual_damage)
         if attacker.kind == "U":
-            attacker.heal(1)
+            attacker.heal_counter = getattr(attacker, "heal_counter", 0) + 1
+            if attacker.heal_counter >= 2:
+                attacker.heal(1)
+                attacker.heal_counter = 0
         attacker.reset_charge()
 
         # 창병은 기병별 첫 돌격을 받아낼 때 한 번만 반격 피해를 줍니다.

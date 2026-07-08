@@ -47,34 +47,34 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
         elif s_type == "S":
             s_display = "Spearman (S): 4G"
             if a_type != "&" and k_type != "@":
-                stdscr.addstr(3, 2, "[5] Promote Spearman (7G)", curses.color_pair(3))
+                stdscr.addstr(3, 2, "[5] Promote Spearman (35G)", curses.color_pair(3))
             else:
                 stdscr.addstr(3, 2, "RANK UP: Spearman Active!", curses.color_pair(1))
         elif s_type == "H":
-            s_display = "Halberd (H): 7G"
+            s_display = "Halberd (H): 6G"
             stdscr.addstr(3, 2, "RANK UP: Halberd Active!", curses.color_pair(1))
         elif s_type == "T":
             s_display = "Sparta (T): 6G"
             if a_type != "&" and k_type != "@":
-                stdscr.addstr(3, 2, "[5] Promote Sparta (7G)", curses.color_pair(3))
+                stdscr.addstr(3, 2, "[5] Promote Sparta (35G)", curses.color_pair(3))
             else:
                 stdscr.addstr(3, 2, "RANK UP: Sparta Active!", curses.color_pair(1))
         elif s_type == "G":
-            s_display = "Shield Guard (G): 7G"
+            s_display = "Shield Guard (G): 6G"
             stdscr.addstr(3, 2, "RANK UP: Shield Guard Active!", curses.color_pair(1))
         elif s_type == "P":
             s_display = "Paladin (P): 6G"
             if a_type != "&" and k_type != "@":
-                stdscr.addstr(3, 2, "[5] Promote Paladin (7G)", curses.color_pair(3))
+                stdscr.addstr(3, 2, "[5] Promote Paladin (35G)", curses.color_pair(3))
             else:
                 stdscr.addstr(3, 2, "RANK UP: Paladin Active!", curses.color_pair(1))
         else: # "U"
-            s_display = "Crusader (U): 8G"
+            s_display = "Crusader (U): 6G"
             stdscr.addstr(3, 2, "RANK UP: Crusader Active!", curses.color_pair(1))
 
         # --- [동적 UI] 2. 궁수 설정 ---
         if a_type == "&":
-            a_display = "Archer (&): 6G"
+            a_display = "Archer (&): 5G"
             # 보병 전직이 완료된 후에만 궁수 전직 가이드 표시
             if s_type != "#":
                 stdscr.addstr(4, 2, "[5] Promote Archer (25G)", curses.color_pair(3))
@@ -90,18 +90,18 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
 
         # --- [동적 UI] 3. 기병 설정 (새로 추가) ---
         if k_type == "@":
-            k_display = "Knight (@): 14G"
+            k_display = "Knight (@): 12G"
             # 궁수 전직까지 완료된 후에만 기병 전직 가이드 표시
             if a_type != "&":
                 stdscr.addstr(5, 2, "[5] Promote Knight (30G)", curses.color_pair(3))
         elif k_type == "C":
-            k_display = "Chariot (C): 20G"
+            k_display = "Chariot (C): 15G"
             stdscr.addstr(5, 2, "RANK UP: Chariot Active!", curses.color_pair(1))
         elif k_type == "W": # "W"
-            k_display = "W.Hussar (W): 18G"
+            k_display = "W.Hussar (W): 13G"
             stdscr.addstr(5, 2, "RANK UP: W.Hussar Active!", curses.color_pair(1))
         elif k_type == "D":
-            k_display = "Dragoon (D): 18G"
+            k_display = "Dragoon (D): 15G"
             stdscr.addstr(5, 2, "RANK UP: Dragoon Active!", curses.color_pair(1))
 
         if current_special == "L":
@@ -164,15 +164,15 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
                 stdscr.addstr(start_y + 7, start_x + 16, "COST: 20 GOLD", curses.color_pair(2))
             elif show_promo_mode == 2:
                 stdscr.addstr(start_y + 1, start_x + 13, "--- ARCHER PROMOTION ---", curses.color_pair(3) | curses.A_BOLD)
-                stdscr.addstr(start_y + 3, start_x + 3, "[6] Musketeer: DMG 8, Range 6 (8G)", curses.color_pair(1))
+                stdscr.addstr(start_y + 3, start_x + 3, "[6] Musketeer: DMG 9, Range 6 (8G)", curses.color_pair(1))
                 stdscr.addstr(start_y + 4, start_x + 3, "[7] Javelin  : Fast Attack     (6G)", curses.color_pair(1))
                 stdscr.addstr(start_y + 5, start_x + 3, "[8] Fire Arc : 10% MaxHP Dmg   (7G)", curses.color_pair(1))
                 stdscr.addstr(start_y + 7, start_x + 16, "COST: 25 GOLD", curses.color_pair(2))
             elif show_promo_mode == 3:
                 stdscr.addstr(start_y + 1, start_x + 13, "--- KNIGHT PROMOTION ---", curses.color_pair(3) | curses.A_BOLD)
-                stdscr.addstr(start_y + 3, start_x + 3, "[6] Chariot: HP 60, Fast Atk (20G)", curses.color_pair(1))
-                stdscr.addstr(start_y + 4, start_x + 3, "[7] W.Hussar: DMG 18, Range 3 (17G)", curses.color_pair(1))
-                stdscr.addstr(start_y + 5, start_x + 3, "[8] Dragoon: Gun and Sword (18G)", curses.color_pair(1))
+                stdscr.addstr(start_y + 3, start_x + 3, "[6] Chariot: HP 45, Fast Atk (15G)", curses.color_pair(1))
+                stdscr.addstr(start_y + 4, start_x + 3, "[7] W.Hussar: DMG 9, Range 1.5 (13G)", curses.color_pair(1))
+                stdscr.addstr(start_y + 5, start_x + 3, "[8] Dragoon: Gun and Sword (15G)", curses.color_pair(1))
                 stdscr.addstr(start_y + 7, start_x + 16, "COST: 30 GOLD", curses.color_pair(2))
             elif show_promo_mode == 4:
                 stdscr.addstr(start_y + 1, start_x + 13, "--- SPECIAL UNLOCK ---", curses.color_pair(3) | curses.A_BOLD)
@@ -183,13 +183,13 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
             elif show_promo_mode == 5:
                 stdscr.addstr(start_y + 1, start_x + 10, "--- SOLDIER 2ND PROMOTION ---", curses.color_pair(3) | curses.A_BOLD)
                 if s_type == "S":
-                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Halberd: HP 18, DMG 8 (7G)", curses.color_pair(1))
+                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Halberd: HP 18, DMG 8 (6G)", curses.color_pair(1))
                     stdscr.addstr(start_y + 4, start_x + 3, "    Anti-cavalry plus max HP damage", curses.color_pair(1))
                 elif s_type == "T":
-                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Shield Guard: HP 33, DMG 5 (7G)", curses.color_pair(1))
+                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Shield Guard: HP 33, DMG 5 (6G)", curses.color_pair(1))
                     stdscr.addstr(start_y + 4, start_x + 3, "    Shield blocks one oversized hit", curses.color_pair(1))
                 elif s_type == "P":
-                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Crusader: HP 28, DMG 7 (7G)", curses.color_pair(1))
-                    stdscr.addstr(start_y + 4, start_x + 3, "    Heals 1 HP on each attack", curses.color_pair(1))
-                stdscr.addstr(start_y + 7, start_x + 16, "COST: 7 GOLD", curses.color_pair(2))
+                    stdscr.addstr(start_y + 3, start_x + 3, "[6] Crusader: HP 26, DMG 7 (6G)", curses.color_pair(1))
+                    stdscr.addstr(start_y + 4, start_x + 3, "    Heals 1 HP every 2 attacks", curses.color_pair(1))
+                stdscr.addstr(start_y + 7, start_x + 16, "COST: 35 GOLD", curses.color_pair(2))
         stdscr.refresh()
