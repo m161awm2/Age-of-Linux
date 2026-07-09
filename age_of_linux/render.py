@@ -1,7 +1,8 @@
 import curses
 
 def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp, 
-            show_promo_mode, s_type, a_type, k_type, ai_s, ai_a, ai_k, unlocked_units=[],current_special = None):
+            show_promo_mode, s_type, a_type, k_type, ai_s, ai_a, ai_k, unlocked_units=[],
+            current_special=None, special_spawn_cooldowns=None):
         """
         k_type: 기병의 현재 타입 ("@", "C", "W") 인자를 추가로 받아야 합니다.
         """
@@ -32,14 +33,23 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
         stdscr.addstr(2, ai_info_x, f"Inf: {ai_s} ({s_name:8s})", curses.color_pair(2))
         stdscr.addstr(3, ai_info_x, f"Arc: {ai_a} ({a_name:8s})", curses.color_pair(2))
         stdscr.addstr(4, ai_info_x, f"Cav: {ai_k} ({k_name:8s})", curses.color_pair(2))
+        special_spawn_cooldowns = special_spawn_cooldowns or {}
+
+        def elite_cooldown_text(kind):
+            remaining = int(special_spawn_cooldowns.get(kind, 0) + 0.999)
+            return f" CD:{remaining}s" if remaining > 0 else ""
         
         if show_promo_mode == 0:
             if current_special == "L":
-                stdscr.addstr(height-1, 2, "[4] Spawn Fenrir (4G)", curses.color_pair(1))
+                stdscr.addstr(height-1, 2, "[4] Spawn Fenrir (4G)  [6] Special Promo", curses.color_pair(1))
             elif current_special == "R":
-                stdscr.addstr(height-1, 2, "[4] Spawn Ronin (8G)", curses.color_pair(1))
+                stdscr.addstr(height-1, 2, "[4] Spawn Ronin (8G)  [6] Special Promo", curses.color_pair(1))
+            elif current_special == "V":
+                stdscr.addstr(height-1, 2, f"[4] Spawn Viking Elite (35G){elite_cooldown_text('V')}", curses.color_pair(1))
+            elif current_special == "Y":
+                stdscr.addstr(height-1, 2, f"[4] Spawn Sanada Elite (45G){elite_cooldown_text('Y')}", curses.color_pair(1))
             elif not current_special:
-                stdscr.addstr(height-1, 2, "[4] Special Unit Menu", curses.color_pair(3))
+                stdscr.addstr(height-1, 2, "[4] Choose Special  [5] Normal Promotion", curses.color_pair(3))
         # --- [동적 UI] 1. 보병 설정 ---
         if s_type == "#":
             s_display = "Soldier (#): 4G"
@@ -104,12 +114,27 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
             k_display = "Dragoon (D): 15G"
             stdscr.addstr(5, 2, "RANK UP: Dragoon Active!", curses.color_pair(1))
 
+        if "V" in unlocked_units:
+            stdscr.addstr(6, 2, "SPECIAL: Viking Elite Active!", curses.color_pair(1))
+        elif "Y" in unlocked_units:
+            stdscr.addstr(6, 2, "SPECIAL: Sanada Elite Active!", curses.color_pair(1))
+        elif "L" in unlocked_units:
+            stdscr.addstr(6, 2, "[6] Promote Fenrir Elite (60G)", curses.color_pair(3))
+        elif "R" in unlocked_units:
+            stdscr.addstr(6, 2, "[6] Promote Ronin Elite (60G)", curses.color_pair(3))
+        else:
+            stdscr.addstr(6, 2, "[4] Choose Special Unit", curses.color_pair(3))
+
         if current_special == "L":
             sp_display = "Fenrir (L): 4G"
         elif current_special == "R":
             sp_display = "Ronin (R): 8G"
+        elif current_special == "V":
+            sp_display = f"Viking Elite (V): 35G{elite_cooldown_text('V')}"
+        elif current_special == "Y":
+            sp_display = f"Sanada Elite (Y): 45G{elite_cooldown_text('Y')}"
         else:
-            sp_display = "None (Menu: 4)"
+            sp_display = "None (Promo: 6)"
 
         # 오른쪽 생산 메뉴 출력 (현재 유닛 타입 반영)
         stdscr.addstr(1, 35, f"[1] {s_display}")
@@ -131,10 +156,19 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
             x_pos = max(0, min(width - 2, int(u.x)))
             char = u.kind
             color = curses.color_pair(1) if u.team == "player" else curses.color_pair(2)
+            if u.kind == "V" and u.is_berserking():
+                color = curses.color_pair(4)
+            if u.kind == "Y" and getattr(u, "charge_tiles", 0) > 0:
+                color |= curses.A_BOLD
+            if u.kind == "Y" and u.can_parry():
+                try: stdscr.addstr(ground_y - 2, x_pos, "-", color | curses.A_BOLD)
+                except: pass
             if getattr(u, "shield_hp", 0) > 0:
                 try: stdscr.addstr(ground_y - 2, x_pos, "O", color | curses.A_BOLD)
                 except: pass
-            if u.kind in ["&", "M", "J","F","D"] and u.state_timer > 0:
+            if getattr(u, "parry_hit_timer", 0) > 0:
+                char = "/"
+            elif u.kind in ["&", "M", "J","F","D"] and u.state_timer > 0:
                 char = "$" # 원거리 공격 연출
             
             # 1. 로닌의 발도술에 맞았을 때 (0.2초간 / 표시)
@@ -171,15 +205,17 @@ def draw(stdscr, width, height, ground_y, p_units, e_units, gold, p_hp, e_hp,
             elif show_promo_mode == 3:
                 stdscr.addstr(start_y + 1, start_x + 13, "--- KNIGHT PROMOTION ---", curses.color_pair(3) | curses.A_BOLD)
                 stdscr.addstr(start_y + 3, start_x + 3, "[6] Chariot: HP 45, Fast Atk (15G)", curses.color_pair(1))
-                stdscr.addstr(start_y + 4, start_x + 3, "[7] W.Hussar: DMG 9, Range 1.5 (13G)", curses.color_pair(1))
+                stdscr.addstr(start_y + 4, start_x + 3, "[7] W.Hussar: DMG 9, Range 2 (13G)", curses.color_pair(1))
                 stdscr.addstr(start_y + 5, start_x + 3, "[8] Dragoon: Gun and Sword (15G)", curses.color_pair(1))
                 stdscr.addstr(start_y + 7, start_x + 16, "COST: 30 GOLD", curses.color_pair(2))
             elif show_promo_mode == 4:
-                stdscr.addstr(start_y + 1, start_x + 13, "--- SPECIAL UNLOCK ---", curses.color_pair(3) | curses.A_BOLD)
-                stdscr.addstr(start_y + 3, start_x + 3, "[6] Fenrir Wolf Warrior: Anti-Archer (4G)", curses.color_pair(3))
-                stdscr.addstr(start_y + 4, start_x + 5, "[7] Ronin : Iaijutsu(x2 Dmg) (8G)", curses.color_pair(3))
-                stdscr.addstr(start_y + 7, start_x + 16, "COST: 30 GOLD", curses.color_pair(2))
-                stdscr.addstr(start_y + 8, start_x + 12, "Press [4] to Close", curses.color_pair(3))
+                if "L" in unlocked_units and "V" not in unlocked_units:
+                    stdscr.addstr(start_y + 3, start_x + 3, "[7] Viking Elite", curses.color_pair(1))
+                elif "R" in unlocked_units and "Y" not in unlocked_units:
+                    stdscr.addstr(start_y + 3, start_x + 3, "[7] Sanada Samurai", curses.color_pair(1))
+                else:
+                    stdscr.addstr(start_y + 3, start_x + 3, "[5] Ronin", curses.color_pair(1))
+                    stdscr.addstr(start_y + 4, start_x + 3, "[6] Fenrir", curses.color_pair(1))
             elif show_promo_mode == 5:
                 stdscr.addstr(start_y + 1, start_x + 10, "--- SOLDIER 2ND PROMOTION ---", curses.color_pair(3) | curses.A_BOLD)
                 if s_type == "S":

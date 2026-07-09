@@ -32,7 +32,7 @@ def try_attack(attacker, target):
         # 2. 기본 데미지 설정 (unit.py의 self.damage 참조)
         actual_damage = attacker.damage
 
-        if attacker.kind == "W":
+        if attacker.kind in ["W", "Y"]:
             actual_damage = round(actual_damage * attacker.charge_damage_multiplier())
         
         # 3. [드라군 전용 로직] 거리에 따라 공격 방식 변경
@@ -59,6 +59,10 @@ def try_attack(attacker, target):
             if not is_dragoon_melee:
                 actual_damage = int(actual_damage * 0.6)
 
+        # 광폭화 중인 바이킹 광전사는 1대1 교전에 특화됩니다.
+        if attacker.kind == "V" and attacker.is_berserking():
+            actual_damage = int(actual_damage * 2.0)
+
         # 5. [기타 상성 로직]
         # 창병 계열이 기병(@, C, W, D)을 공격할 때 추가 데미지
         if attacker.kind in ["S", "H"] and target.kind in ["@", "C", "W", "D"]:
@@ -79,8 +83,19 @@ def try_attack(attacker, target):
             target.state_timer = 0.2 # 피격 연출
 
         # 8. 최종 데미지 적용 및 체력 차감
-        target.take_damage(actual_damage)
-        if attacker.kind == "U":
+        if target.kind == "V" and target.is_berserking():
+            actual_damage = max(1, int(actual_damage * 0.4))
+        parried = False
+        if target.kind == "Y" and target.can_parry():
+            target.use_parry()
+            attacker.take_damage(actual_damage * 2)
+            attacker.parry_hit_timer = 0.2
+            parried = True
+        if not parried:
+            target.take_damage(actual_damage)
+            if attacker.kind == "V":
+                attacker.heal(1)
+        if attacker.kind == "U" and not parried:
             attacker.heal_counter = getattr(attacker, "heal_counter", 0) + 1
             if attacker.heal_counter >= 2:
                 attacker.heal(1)
@@ -101,7 +116,7 @@ def try_attack(attacker, target):
 
         # 9. [후처리] 쿨다운 및 연출 설정
         if attacker.kind != "D":
-            attacker.cooldown = attacker.attack_speed
+            attacker.cooldown = attacker.attack_speed * 0.6 if attacker.is_berserking() else attacker.attack_speed
         
         # 원거리 공격자 연출 타이머
         if attacker.kind in ["&", "M", "J", "F"]:
@@ -110,9 +125,12 @@ def try_attack(attacker, target):
             attacker.state_timer = 0.2
 def attack_base(unit, base_x, base_hp):
     if unit.cooldown <= 0:
-        base_hp -= unit.damage
+        actual_damage = unit.damage
+        if unit.kind == "V" and unit.is_berserking():
+            actual_damage = int(actual_damage * 2.0)
+        base_hp -= actual_damage
         unit.reset_charge()
-        unit.cooldown = unit.attack_speed
+        unit.cooldown = unit.attack_speed * 0.6 if unit.is_berserking() else unit.attack_speed
         
         if unit.kind == "&":
             unit.state_timer = 0.2

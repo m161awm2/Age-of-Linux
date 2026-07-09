@@ -30,9 +30,9 @@ def show_controls(stdscr):
         # 스페셜 유닛
         special_info = [
             "--- SPECIAL UNITS ---",
-            "  [4]       : Open Special Menu (Ronin/Fenrir)",
-            "  └─ After [4], press [6, 7] to Unlock or Select",
-            "  └─ Once selected, press [4] again to spawn them!"
+            "  [4]       : Choose first Special / Spawn selected",
+            "  [6]       : Open Elite Promotion after choosing",
+            "  └─ First: [5] Ronin, [6] Fenrir / Elite: [7]"
         ]
 
         # 화면 출력 (중앙 정렬)
