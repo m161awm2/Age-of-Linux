@@ -63,8 +63,10 @@ def try_attack(attacker, target):
         # 창병 계열이 기병(@, C, W, D)을 공격할 때 추가 데미지
         if attacker.kind in ["S", "H"] and target.kind in ["@", "C", "W", "D"]:
             actual_damage = int(actual_damage * 1.8)
-            if attacker.kind == "H":
-                actual_damage += int(target.max_hp * 0.12)
+
+        # 할버드병은 모든 병사에게 최대 체력 비례 피해를 추가로 줍니다.
+        if attacker.kind == "H":
+            actual_damage += int(target.max_hp * 0.12)
             
         # 6. [불화살 사수(F) 로직] 적 최대 체력 비례 데미지
         if attacker.kind == "F":
@@ -85,10 +87,13 @@ def try_attack(attacker, target):
                 attacker.heal_counter = 0
         attacker.reset_charge()
 
+        is_dragoon_ranged = attacker.kind == "D" and dist > 1.5
+
         # 창병은 기병별 첫 돌격을 받아낼 때 한 번만 반격 피해를 줍니다.
         if (
             target.kind in ["S", "H"]
             and attacker.kind in CAVALRY_KINDS
+            and not is_dragoon_ranged
             and not getattr(attacker, "took_spearman_counter", False)
         ):
             attacker.hp -= target.damage

@@ -1,9 +1,10 @@
 CAVALRY_KINDS = {"@", "C", "W", "D"}
 ATTACK_WINDUP_RATIO = 0.2
 SHIELD_GUARD_SHIELD_HP = 8
-WINGED_HUSSAR_CHARGE_STEP = 0.1
-WINGED_HUSSAR_MAX_SPEED = 1.75
+WINGED_HUSSAR_CHARGE_STEP = 0.08
+WINGED_HUSSAR_MAX_SPEED = 2.4
 WINGED_HUSSAR_MAX_DAMAGE_BONUS = 0.2
+WINGED_HUSSAR_CHARGE_GRACE = 1.0
 
 class Unit:
     def __init__(self, kind, team, x):
@@ -50,7 +51,7 @@ class Unit:
             
         elif kind == "@": # 기병
             base_hp, base_dmg = 27, 8
-            self.cost, self.range, self.attack_speed = 12, 2, 1.2
+            self.cost, self.range, self.attack_speed = 13, 2, 1.2
         elif kind == "C": # Chariot (전직 기병 1)
             base_hp, base_dmg = 45, 1 # 높은 체력, 낮은 단발 데미지
             self.cost, self.range, self.attack_speed = 15, 1, 0.15
@@ -85,12 +86,19 @@ class Unit:
         self.cooldown = 0 if self.is_cavalry else self.attack_speed * ATTACK_WINDUP_RATIO
         self.charge_tiles = 0
         self.last_charge_tile = int(self.x)
+        self.charge_grace_timer = 0
 
     def update(self, dt):
         if self.cooldown > 0 and (self.is_cavalry or self.in_attack_range):
             self.cooldown -= dt
             if self.cooldown <= 0.001:
                 self.cooldown = 0
+        if self.kind == "W" and self.charge_grace_timer > 0:
+            self.charge_grace_timer -= dt
+            if self.charge_grace_timer <= 0:
+                self.charge_grace_timer = 0
+                self.charge_tiles = 0
+                self.last_charge_tile = int(self.x)
         self.in_attack_range = False
         if self.state_timer > 0:
             self.state_timer -= dt
@@ -122,6 +130,7 @@ class Unit:
     def update_charge_after_move(self):
         if self.kind != "W":
             return
+        self.charge_grace_timer = 0
         current_tile = int(self.x)
         crossed_tiles = abs(current_tile - self.last_charge_tile)
         if crossed_tiles > 0:
@@ -129,9 +138,8 @@ class Unit:
             self.last_charge_tile = current_tile
 
     def reset_charge(self):
-        if self.kind == "W":
-            self.charge_tiles = 0
-            self.last_charge_tile = int(self.x)
+        if self.kind == "W" and self.charge_tiles > 0 and self.charge_grace_timer <= 0:
+            self.charge_grace_timer = WINGED_HUSSAR_CHARGE_GRACE
 
     def charge_damage_multiplier(self):
         if self.kind != "W":

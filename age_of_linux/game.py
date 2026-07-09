@@ -13,6 +13,12 @@ PLAYER_DEATH_BOUNTY_RATE = {
     "Hard": 0.75,
 }
 
+AI_BASE_HP_BY_DIFFICULTY = {
+    "Easy": 100,
+    "Medium": 200,
+    "Hard": 250,
+}
+
 def run(stdscr, difficulty="Hard"):
     # ======================
     # 초기 설정
@@ -41,9 +47,10 @@ def run(stdscr, difficulty="Hard"):
     PROMO_COST_K = 30
     SECOND_PROMO_COST = 35
 
-    player_base_hp, ai_base_hp = 100, 500
+    ai_starting_base_hp = AI_BASE_HP_BY_DIFFICULTY.get(difficulty, AI_BASE_HP_BY_DIFFICULTY["Hard"])
+    player_base_hp, ai_base_hp = 100, ai_starting_base_hp
     player_units, ai_units = [], []
-    last_bonus_hp = 500
+    last_bonus_hp = ai_starting_base_hp
     
     # --- 기존에 있던 eco = Economy() 부분을 아래와 같이 수정/확인 ---
     # 초기 자금은 10G로 모든 난이도 똑같이 고정!
